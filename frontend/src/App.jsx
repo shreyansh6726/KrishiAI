@@ -29,7 +29,6 @@ const Login = ({ setToken, setUsername }) => {
       storage.setItem('username', user.username);
       storage.setItem('rememberMe', rememberMe ? 'true' : 'false');
 
-      // Critical Fix: Set this flag during login so refreshes don't log the user out
       sessionStorage.setItem('is_active_session', 'true');
 
       setUsername(user.username);
@@ -45,7 +44,10 @@ const Login = ({ setToken, setUsername }) => {
     <div className="auth-page">
       {isLoading && <LoadingSpinner message="Signing you in..." />}
       <div className="login-container">
-        <h2 style={{ textAlign: 'center', color: '#2d3436' }}>KrishiAI</h2>
+        <div className="brand-header">
+          <img src="/logo.png" alt="KrishiAI Logo" className="brand-logo" />
+          <h2 style={{ textAlign: 'center', color: '#2d3436', margin: 0 }}>KrishiAI</h2>
+        </div>
         <form onSubmit={handleLogin}>
           <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
           <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
@@ -92,7 +94,10 @@ const SignUp = () => {
     <div className="auth-page">
       {isLoading && <LoadingSpinner message="Creating your account..." />}
       <div className="login-container">
-        <h2 style={{ textAlign: 'center', color: '#2d3436' }}>Create Account</h2>
+        <div className="brand-header">
+          <img src="/logo.png" alt="KrishiAI Logo" className="brand-logo" />
+          <h2 style={{ textAlign: 'center', color: '#2d3436', margin: 0 }}>Create Account</h2>
+        </div>
         {message && <p style={{ color: '#00b894', textAlign: 'center' }}>{message}</p>}
         <form onSubmit={handleSignUp}>
           <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} required />
@@ -110,7 +115,10 @@ const SignUp = () => {
 
 const Navbar = ({ handleLogout }) => (
   <nav className="navbar">
-    <Link to="/" className="nav-logo">🌿 KrishiAI</Link>
+    <Link to="/" className="nav-logo">
+      <img src="/logo.png" alt="Logo" className="brand-logo" />
+      KrishiAI
+    </Link>
     <div className="nav-links">
       <Link to="/" className="nav-link">Home</Link>
       <Link to="/marketplace" className="nav-link">Marketplace</Link>
@@ -166,14 +174,12 @@ function App() {
     const isRemembered = localStorage.getItem('token') !== null;
     const sessionToken = sessionStorage.getItem('token');
 
-    // Check if this is a restored session or a valid refresh
     if (!isRemembered && sessionToken) {
       if (!sessionStorage.getItem('is_active_session')) {
         handleLogout();
       }
     }
 
-    // Set the flag for the current session if logged in
     if (sessionToken) {
       sessionStorage.setItem('is_active_session', 'true');
     }
@@ -181,7 +187,6 @@ function App() {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    // Give time to see the "Signing you out..." message
     await new Promise(resolve => setTimeout(resolve, 800));
 
     localStorage.removeItem('token');

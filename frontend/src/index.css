@@ -21,6 +21,25 @@ body {
   max-width: 350px;
 }
 
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.brand-logo {
+  height: 40px;
+  width: auto;
+  margin-bottom: 5px;
+}
+
+.nav-logo .brand-logo {
+  height: 32px;
+  margin-right: 12px;
+  margin-bottom: 0;
+}
+
 h2 {
   margin-top: 0;
   font-weight: 700;
