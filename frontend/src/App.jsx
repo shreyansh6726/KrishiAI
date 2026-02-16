@@ -29,6 +29,9 @@ const Login = ({ setToken, setUsername }) => {
       storage.setItem('username', user.username);
       storage.setItem('rememberMe', rememberMe ? 'true' : 'false');
 
+      // Critical Fix: Set this flag during login so refreshes don't log the user out
+      sessionStorage.setItem('is_active_session', 'true');
+
       setUsername(user.username);
       setToken(token);
     } catch (err) {
@@ -163,20 +166,22 @@ function App() {
     const isRemembered = localStorage.getItem('token') !== null;
     const sessionToken = sessionStorage.getItem('token');
 
+    // Check if this is a restored session or a valid refresh
     if (!isRemembered && sessionToken) {
-      if (!window.sessionStorage.getItem('is_active_session')) {
+      if (!sessionStorage.getItem('is_active_session')) {
         handleLogout();
       }
     }
 
+    // Set the flag for the current session if logged in
     if (sessionToken) {
-      window.sessionStorage.setItem('is_active_session', 'true');
+      sessionStorage.setItem('is_active_session', 'true');
     }
-  }, []);
+  }, [token]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    // Brief delay to show "Signing you out..."
+    // Give time to see the "Signing you out..." message
     await new Promise(resolve => setTimeout(resolve, 800));
 
     localStorage.removeItem('token');
