@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
-const LoadingSpinner = () => (
+const LoadingSpinner = ({ message }) => (
   <div className="loading-overlay">
-    <div className="spinner"></div>
+    <div className="spinner-container">
+      <div className="spinner"></div>
+      {message && <p className="spinner-text">{message}</p>}
+    </div>
   </div>
 );
 
@@ -37,7 +40,7 @@ const Login = ({ setToken, setUsername }) => {
 
   return (
     <div className="auth-page">
-      {isLoading && <LoadingSpinner />}
+      {isLoading && <LoadingSpinner message="Signing you in..." />}
       <div className="login-container">
         <h2 style={{ textAlign: 'center', color: '#2d3436' }}>KrishiAI</h2>
         <form onSubmit={handleLogin}>
@@ -84,7 +87,7 @@ const SignUp = () => {
 
   return (
     <div className="auth-page">
-      {isLoading && <LoadingSpinner />}
+      {isLoading && <LoadingSpinner message="Creating your account..." />}
       <div className="login-container">
         <h2 style={{ textAlign: 'center', color: '#2d3436' }}>Create Account</h2>
         {message && <p style={{ color: '#00b894', textAlign: 'center' }}>{message}</p>}
@@ -154,32 +157,28 @@ const PlaceholderPage = ({ title }) => (
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || sessionStorage.getItem('token'));
   const [username, setUsername] = useState(localStorage.getItem('username') || sessionStorage.getItem('username'));
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    // Security Fix: Detect if this is a restored session that should have been cleared.
-    // If rememberMe was false, and the tab was closed/reopened, we can try to invalidate.
     const isRemembered = localStorage.getItem('token') !== null;
     const sessionToken = sessionStorage.getItem('token');
 
-    // If it's a session-only token, we'll use a hidden flag to detect "fresh" session.
-    // window.name is often reused, but it's one of the few things that can survive a refresh 
-    // but can be initialized specially.
     if (!isRemembered && sessionToken) {
-      // If we don't have our "session_active" flag, it might be a restored tab.
       if (!window.sessionStorage.getItem('is_active_session')) {
-        // This is a restored tab from a previous session that wasn't "Remembered"
-        // We clear it to satisfy the user's security requirement.
         handleLogout();
       }
     }
 
-    // Set the flag for the current session
     if (sessionToken) {
       window.sessionStorage.setItem('is_active_session', 'true');
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    // Brief delay to show "Signing you out..."
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('rememberMe');
@@ -187,12 +186,15 @@ function App() {
     sessionStorage.removeItem('username');
     sessionStorage.removeItem('rememberMe');
     sessionStorage.removeItem('is_active_session');
+
     setToken(null);
     setUsername('');
+    setIsLoggingOut(false);
   };
 
   return (
     <Router>
+      {isLoggingOut && <LoadingSpinner message="Signing you out..." />}
       {token && <Navbar handleLogout={handleLogout} />}
       <Routes>
         <Route path="/" element={token ? <Dashboard username={username} /> : <Login setToken={setToken} setUsername={setUsername} />} />
