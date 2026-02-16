@@ -12,13 +12,8 @@ const Login = ({ setToken }) => {
     try {
       const response = await axios.post('https://krishiai-sxtk.onrender.com/api/auth/login', { email, password });
       const token = response.data.token;
-
-      if (rememberMe) {
-        localStorage.setItem('token', token);
-      } else {
-        sessionStorage.setItem('token', token);
-      }
-
+      if (rememberMe) localStorage.setItem('token', token);
+      else sessionStorage.setItem('token', token);
       setToken(token);
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || "Check your credentials"));
@@ -26,26 +21,26 @@ const Login = ({ setToken }) => {
   };
 
   return (
-    <div className="login-container">
-      <h2 style={{ textAlign: 'center', color: '#2d3436' }}>KrishiAI</h2>
-      <form onSubmit={handleLogin}>
-        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-          <input
-            type="checkbox"
-            id="rememberMe"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            style={{ width: 'auto', marginRight: '10px' }}
-          />
-          <label htmlFor="rememberMe" style={{ color: '#636e72', fontSize: '14px' }}>Keep me logged in</label>
-        </div>
-        <button type="submit">Sign In</button>
-      </form>
-      <p style={{ textAlign: 'center', marginTop: '15px' }}>
-        Don't have an account? <Link to="/signup" style={{ color: '#00b894', fontWeight: 'bold' }}>Sign Up</Link>
-      </p>
+    <div className="auth-page">
+      <div className="login-container">
+        <h2 style={{ textAlign: 'center', color: '#2d3436' }}>KrishiAI</h2>
+        <form onSubmit={handleLogin}>
+          <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <input
+              type="checkbox" id="rememberMe" checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              style={{ width: 'auto', marginRight: '10px' }}
+            />
+            <label htmlFor="rememberMe" style={{ color: '#636e72', fontSize: '14px' }}>Keep me logged in</label>
+          </div>
+          <button type="submit">Sign In</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: '15px' }}>
+          Don't have an account? <Link to="/signup" style={{ color: '#00b894', fontWeight: 'bold' }}>Sign Up</Link>
+        </p>
+      </div>
     </div>
   );
 };
@@ -68,27 +63,70 @@ const SignUp = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2 style={{ textAlign: 'center', color: '#2d3436' }}>Create Account</h2>
-      {message && <p style={{ color: '#00b894', textAlign: 'center' }}>{message}</p>}
-      <form onSubmit={handleSignUp}>
-        <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} required />
-        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Sign Up</button>
-      </form>
-      <p style={{ textAlign: 'center', marginTop: '15px' }}>
-        Already have an account? <Link to="/" style={{ color: '#00b894', fontWeight: 'bold' }}>Sign In</Link>
-      </p>
+    <div className="auth-page">
+      <div className="login-container">
+        <h2 style={{ textAlign: 'center', color: '#2d3436' }}>Create Account</h2>
+        {message && <p style={{ color: '#00b894', textAlign: 'center' }}>{message}</p>}
+        <form onSubmit={handleSignUp}>
+          <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} required />
+          <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+          <button type="submit">Sign Up</button>
+        </form>
+        <p style={{ textAlign: 'center', marginTop: '15px' }}>
+          Already have an account? <Link to="/" style={{ color: '#00b894', fontWeight: 'bold' }}>Sign In</Link>
+        </p>
+      </div>
     </div>
   );
 };
 
-const Homepage = ({ handleLogout }) => (
-  <div style={{ textAlign: 'center' }}>
-    <h1>🌿 KrishiAI Dashboard</h1>
-    <p>Logged in successfully. Your session is saved!</p>
-    <button onClick={handleLogout} style={{ width: 'auto', padding: '10px 20px' }}>Logout</button>
+const Navbar = ({ handleLogout }) => (
+  <nav className="navbar">
+    <Link to="/" className="nav-logo">🌿 KrishiAI</Link>
+    <div className="nav-links">
+      <Link to="/" className="nav-link">Home</Link>
+      <Link to="/marketplace" className="nav-link">Marketplace</Link>
+      <Link to="/expert" className="nav-link">Expert Advice</Link>
+      <Link to="/about" className="nav-link">About Us</Link>
+      <Link to="/profile" className="nav-link">Profile</Link>
+    </div>
+    <button onClick={handleLogout} className="logout-btn">Logout</button>
+  </nav>
+);
+
+const Dashboard = () => (
+  <div className="main-content">
+    <h1 className="dashboard-title">Welcome back, Farmer! 👋</h1>
+    <div className="grid-container">
+      <div className="card">
+        <div className="icon">🌾</div>
+        <h3>Crop Advisory</h3>
+        <p>Get personalized advice on your current crops and soil health.</p>
+      </div>
+      <div className="card">
+        <div className="icon">🌦️</div>
+        <h3>Weather Forecast</h3>
+        <p>Stay updated with hyper-local weather alerts for your farm.</p>
+      </div>
+      <div className="card">
+        <div className="icon">💰</div>
+        <h3>Market Prices</h3>
+        <p>Real-time updates on Mandi prices across the country.</p>
+      </div>
+      <div className="card">
+        <div className="icon">🛰️</div>
+        <h3>Satellite View</h3>
+        <p>Analyze your farm's health from above with satellite imagery.</p>
+      </div>
+    </div>
+  </div>
+);
+
+const PlaceholderPage = ({ title }) => (
+  <div className="main-content">
+    <h1 className="dashboard-title">{title}</h1>
+    <p>This section is under development. Stay tuned for KrishiAI updates!</p>
   </div>
 );
 
@@ -103,9 +141,14 @@ function App() {
 
   return (
     <Router>
+      {token && <Navbar handleLogout={handleLogout} />}
       <Routes>
-        <Route path="/" element={token ? <Homepage handleLogout={handleLogout} /> : <Login setToken={setToken} />} />
+        <Route path="/" element={token ? <Dashboard /> : <Login setToken={setToken} />} />
         <Route path="/signup" element={token ? <Navigate to="/" /> : <SignUp />} />
+        <Route path="/marketplace" element={token ? <PlaceholderPage title="Farmers Marketplace" /> : <Navigate to="/" />} />
+        <Route path="/expert" element={token ? <PlaceholderPage title="Agricultural Experts" /> : <Navigate to="/" />} />
+        <Route path="/about" element={token ? <PlaceholderPage title="About KrishiAI" /> : <Navigate to="/" />} />
+        <Route path="/profile" element={token ? <PlaceholderPage title="Your Profile" /> : <Navigate to="/" />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
