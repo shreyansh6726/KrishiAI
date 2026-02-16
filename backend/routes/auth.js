@@ -9,9 +9,15 @@ router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        // Check if user exists
-        let user = await User.findOne({ email });
-        if (user) return res.status(400).json({ message: "User already exists" });
+        // Check if user already exists (by email OR username)
+        let user = await User.findOne({
+            $or: [{ email }, { username }]
+        });
+
+        if (user) {
+            const field = user.email === email ? "Email" : "Username";
+            return res.status(400).json({ message: `${field} already exists` });
+        }
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
@@ -21,8 +27,14 @@ router.post('/register', async (req, res) => {
         user = new User({ username, email, password: hashedPassword });
         await user.save();
 
+        console.log(`User registered: ${email}`);
         res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
+        console.error("Registration Error:", err);
+        // Handle MongoDB duplicate key error specifically if it somehow passes the initial check
+        if (err.code === 11000) {
+            return res.status(400).json({ message: "Username or Email already exists" });
+        }
         res.status(500).json({ message: "Server error during registration" });
     }
 });
@@ -43,8 +55,8 @@ router.post('/login', async (req, res) => {
         // Create JWT
         // Uses the JWT_SECRET from your .env / Render Environment Variables
         const token = jwt.sign(
-            { id: user._id }, 
-            process.env.JWT_SECRET, 
+            { id: user._id },
+            process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
 

@@ -5,6 +5,7 @@ import axios from 'axios';
 const Login = ({ setToken }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -12,7 +13,12 @@ const Login = ({ setToken }) => {
       const response = await axios.post('https://krishiai-sxtk.onrender.com/api/auth/login', { email, password });
       const token = response.data.token;
 
-      localStorage.setItem('token', token);
+      if (rememberMe) {
+        localStorage.setItem('token', token);
+      } else {
+        sessionStorage.setItem('token', token);
+      }
+
       setToken(token);
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || "Check your credentials"));
@@ -25,6 +31,16 @@ const Login = ({ setToken }) => {
       <form onSubmit={handleLogin}>
         <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
         <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+          <input
+            type="checkbox"
+            id="rememberMe"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            style={{ width: 'auto', marginRight: '10px' }}
+          />
+          <label htmlFor="rememberMe" style={{ color: '#636e72', fontSize: '14px' }}>Keep me logged in</label>
+        </div>
         <button type="submit">Sign In</button>
       </form>
       <p style={{ textAlign: 'center', marginTop: '15px' }}>
@@ -46,6 +62,7 @@ const SignUp = () => {
       const response = await axios.post('https://krishiai-sxtk.onrender.com/api/auth/register', { username, email, password });
       setMessage(response.data.message + ". You can now log in.");
     } catch (err) {
+      console.error("Sign Up Error:", err.response?.data || err.message);
       alert("Error: " + (err.response?.data?.message || "Something went wrong"));
     }
   };
@@ -76,10 +93,11 @@ const Homepage = ({ handleLogout }) => (
 );
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem('token') || sessionStorage.getItem('token'));
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     setToken(null);
   };
 
